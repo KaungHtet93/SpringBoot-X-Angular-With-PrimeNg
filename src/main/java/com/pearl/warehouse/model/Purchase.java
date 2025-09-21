@@ -21,20 +21,21 @@ import java.util.List;
 public class Purchase {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer purchaseId;
+  @Column(name = "purchase_id") // DB column name
+  private Integer id;
   @ManyToOne
   @JoinColumn(name = "supplier_id", nullable = false)
   private Supplier supplier;
   private LocalDate purchaseDate;
-  @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<PurchaseDetails> details = new ArrayList<>();
+  @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+  private List<PurchaseDetails> purchaseDetail = new ArrayList<>();
   public void addDetail(PurchaseDetails detail) {
-    details.add(detail);
+    purchaseDetail.add(detail);
     detail.setPurchase(this);
   }
 
   public void removeDetail(PurchaseDetails detail) {
-    details.remove(detail);
+    purchaseDetail.remove(detail);
     detail.setPurchase(null);
   }
 }

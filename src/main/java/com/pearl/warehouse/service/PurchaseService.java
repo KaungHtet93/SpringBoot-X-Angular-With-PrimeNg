@@ -70,9 +70,9 @@ public class PurchaseService {
       .orElseThrow(() -> new RuntimeException("Purchase not found with id " + id));
 
     // rollback old stock first
-    purchase.getDetails().forEach(d -> rollbackStockQuantity(d.getProduct().getProductId(), d.getQuantity()));
+    purchase.getPurchaseDetail().forEach(d -> rollbackStockQuantity(d.getProduct().getProductId(), d.getQuantity()));
 
-    purchase.getDetails().clear(); // remove old details
+    purchase.getPurchaseDetail().clear(); // remove old details
     Supplier supplier = supplierRepository.findById(dto.supplierId())
       .orElseThrow(() -> new RuntimeException("Supplier not found with id " + dto.supplierId()));
     purchase.setSupplier(supplier);
@@ -102,7 +102,7 @@ public class PurchaseService {
       .orElseThrow(() -> new RuntimeException("Purchase not found"));
 
     // rollback stock
-    purchase.getDetails().forEach(d -> rollbackStockQuantity(d.getProduct().getProductId(), d.getQuantity()));
+    purchase.getPurchaseDetail().forEach(d -> rollbackStockQuantity(d.getProduct().getProductId(), d.getQuantity()));
 
     purchaseRepository.delete(purchase);
     return true;

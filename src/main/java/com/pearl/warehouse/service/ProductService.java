@@ -74,4 +74,8 @@ public class ProductService {
     productRepository.deleteById(id);
     return true;
   }
+  public ProductResponse findByProductName(String name){
+    Product product = productRepository.findByName(name).orElseThrow(()->new RuntimeException("ProductNotFound"));
+    return productMapper.toProductResponse(product);
+  }
 }

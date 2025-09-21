@@ -16,39 +16,45 @@ import java.util.Optional;
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+  @Autowired
+  private ProductService productService;
 
-    @GetMapping("/greeting")
-    public ResponseEntity<ProductDto> greeting(){
-        ProductDto item1 =new ProductDto();
-        item1.setItemCode("001");
-        item1.setItemName("Item 1");
-        return ResponseEntity.ok(item1);
-    }
+  @GetMapping("/greeting")
+  public ResponseEntity<ProductDto> greeting() {
+    ProductDto item1 = new ProductDto();
+    item1.setItemCode("001");
+    item1.setItemName("Item 1");
+    return ResponseEntity.ok(item1);
+  }
 
-    @GetMapping("/list")
-    public List<ProductResponse> getAllProducts(){
-        return productService.getAllProducts();
-    }
+  @GetMapping("/list")
+  public List<ProductResponse> getAllProducts() {
+    return productService.getAllProducts();
+  }
 
-    @GetMapping("{id}")
-    public ProductResponse getProductById(@PathVariable(value="id") Integer id){
-        return productService.findById(id);
-    }
+  @GetMapping("{id}")
+  public ProductResponse getProductById(@PathVariable(value = "id") Integer id) {
+    return productService.findById(id);
+  }
+
+  @GetMapping("{name}")
+  public ProductResponse getProductByName(@PathVariable(value = "id") String name) {
+    return productService.findByProductName(name);
+  }
 
 
-    @PostMapping("/save")
-    public ProductResponse saveProduct(@RequestBody ProductInput productInput){
-        return productService.saveProduct(productInput);
-    }
-    @PutMapping("/update/{id}")
-    public ProductResponse updateProduct(@PathVariable(value="id") Integer productId, @RequestBody ProductInput productInput){
-        return productService.update(productId,productInput);
-    }
+  @PostMapping("/save")
+  public ProductResponse saveProduct(@RequestBody ProductInput productInput) {
+    return productService.saveProduct(productInput);
+  }
 
-    @DeleteMapping("/delete/{id}")
-    public Boolean deleteProduct(@PathVariable Integer id){
-        return productService.deleteById(id);
-    }
+  @PutMapping("/update/{id}")
+  public ProductResponse updateProduct(@PathVariable(value = "id") Integer productId, @RequestBody ProductInput productInput) {
+    return productService.update(productId, productInput);
+  }
+
+  @DeleteMapping("/delete/{id}")
+  public Boolean deleteProduct(@PathVariable Integer id) {
+    return productService.deleteById(id);
+  }
 }

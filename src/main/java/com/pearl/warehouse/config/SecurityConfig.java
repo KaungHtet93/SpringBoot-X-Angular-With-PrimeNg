@@ -25,58 +25,59 @@ import java.util.Map;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+  @Autowired
+  private JwtRequestFilter jwtRequestFilter;
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+  @Autowired
+  private CustomUserDetailsService userDetailsService;
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        // .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/categories/**").permitAll()//.hasAuthority("USER")
-                        //.requestMatchers("/products/**").hasAuthority("ADMIN")
-                  .requestMatchers("/products/**").permitAll()
-                  .requestMatchers("/suppliers/**").permitAll()
-                  .requestMatchers("/purchases/**").permitAll()
-                  .requestMatchers("/stocks/**").permitAll()
-                        .anyRequest().authenticated()
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+      .csrf(csrf -> csrf.disable())
+      .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .authorizeHttpRequests(auth -> auth
+        // .requestMatchers("/api/auth/**").permitAll()
+        .requestMatchers("/auth/login").permitAll()
+        .requestMatchers("/api/**").permitAll()
+        .requestMatchers("/categories/**").permitAll()//.hasAuthority("USER")
+        //.requestMatchers("/products/**").hasAuthority("ADMIN")
+        .requestMatchers("/products/**").permitAll()
+        .requestMatchers("/suppliers/**").permitAll()
+        .requestMatchers("/purchases/**").permitAll()
+        .requestMatchers("/stocks/**").permitAll()
+        .anyRequest().authenticated()
 
-                )
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler(customAccessDeniedHandler())
-                );
+      )
+      .exceptionHandling(ex -> ex
+        .accessDeniedHandler(customAccessDeniedHandler())
+      );
 
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+    http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    @Bean
-    public AccessDeniedHandler customAccessDeniedHandler() {
-        return (request, response, accessDeniedException) -> {
-            response.setStatus(HttpStatus.FORBIDDEN.value());
-            response.setContentType("application/json");
-            Map<String, Object> body = new HashMap<>();
-            body.put("timestamp", LocalDateTime.now());
-            body.put("status", HttpStatus.FORBIDDEN.value());
-            body.put("error", "Forbidden");
-            body.put("message", "You do not have permission to access this resource");
-            new ObjectMapper().writeValue(response.getOutputStream(), body);
-        };
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public AccessDeniedHandler customAccessDeniedHandler() {
+    return (request, response, accessDeniedException) -> {
+      response.setStatus(HttpStatus.FORBIDDEN.value());
+      response.setContentType("application/json");
+      Map<String, Object> body = new HashMap<>();
+      body.put("timestamp", LocalDateTime.now());
+      body.put("status", HttpStatus.FORBIDDEN.value());
+      body.put("error", "Forbidden");
+      body.put("message", "You do not have permission to access this resource");
+      new ObjectMapper().writeValue(response.getOutputStream(), body);
+    };
+  }
 }

@@ -1,7 +1,7 @@
 package com.pearl.warehouse.dto.response;
 
 public record PurchaseDetailResponse(
-  Integer purchaseDetailId,
+//  Integer purchaseDetailId,
   ProductNameResponse product,
   Integer quantity,
   Double unitPrice,
