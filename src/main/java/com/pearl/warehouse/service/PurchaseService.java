@@ -1,6 +1,8 @@
 package com.pearl.warehouse.service;
 
-import com.pearl.warehouse.dto.input.PurchaseDto;
+import com.pearl.warehouse.dto.input.PurchaseInput;
+import com.pearl.warehouse.dto.response.PurchaseResponse;
+import com.pearl.warehouse.mapper.PurchaseMapper;
 import com.pearl.warehouse.model.*;
 import com.pearl.warehouse.repository.*;
 import jakarta.transaction.Transactional;
@@ -21,15 +23,22 @@ public class PurchaseService {
   private ProductRepository productRepository;
   @Autowired
   private SupplierRepository supplierRepository;
-  public List<Purchase> getAllPurchases() {
-    return purchaseRepository.findAll();
+  private PurchaseMapper purchaseMapper;
+  public PurchaseService(PurchaseMapper purchaseMapper){
+    this.purchaseMapper=purchaseMapper;
   }
-  public Optional<Purchase> getPurchaseWithDetails(Integer id) {
-    return purchaseRepository.findById(id);
+  public List<PurchaseResponse> getAllPurchases() {
+    List<Purchase> purchaseList= purchaseRepository.findAll();
+    return purchaseMapper.toPurcListResponse(purchaseList);
+  }
+
+  public PurchaseResponse getPurchaseWithDetails(Integer id) {
+    Purchase purchase= purchaseRepository.findById(id).orElseThrow(()->new RuntimeException("Purchase Not found"));
+    return purchaseMapper.toPurchaseResponse(purchase);
   }
 
   @Transactional
-  public Purchase savePurchase(PurchaseDto dto) {
+  public PurchaseResponse savePurchase(PurchaseInput dto) {
     Purchase purchase = new Purchase();
     Supplier supplier = supplierRepository.findById(dto.supplierId())
       .orElseThrow(() -> new RuntimeException("Supplier not found with id " + dto.supplierId()));
@@ -51,11 +60,12 @@ public class PurchaseService {
       updateStockQuantity(d.productId(), d.quantity(), d.unitPrice(), d.uom());
     });
 
-    return purchaseRepository.save(purchase);
+    Purchase savePurchase= purchaseRepository.save(purchase);
+    return purchaseMapper.toPurchaseResponse(savePurchase);
   }
 
   @Transactional
-  public Purchase updatePurchase(Integer id, PurchaseDto dto) {
+  public PurchaseResponse updatePurchase(Integer id, PurchaseInput dto) {
     Purchase purchase = purchaseRepository.findById(id)
       .orElseThrow(() -> new RuntimeException("Purchase not found with id " + id));
 
@@ -65,7 +75,8 @@ public class PurchaseService {
     purchase.getDetails().clear(); // remove old details
     Supplier supplier = supplierRepository.findById(dto.supplierId())
       .orElseThrow(() -> new RuntimeException("Supplier not found with id " + dto.supplierId()));
-    purchase.setSupplier(supplier);    purchase.setPurchaseDate(dto.orderDate());
+    purchase.setSupplier(supplier);
+    purchase.setPurchaseDate(dto.orderDate());
 
     dto.details().forEach(d -> {
       PurchaseDetails pd = new PurchaseDetails();
@@ -81,7 +92,8 @@ public class PurchaseService {
       updateStockQuantity(d.productId(), d.quantity(), d.unitPrice(), d.uom());
     });
 
-    return purchaseRepository.save(purchase);
+    Purchase savePurchase= purchaseRepository.save(purchase);
+    return purchaseMapper.toPurchaseResponse(savePurchase);
   }
 
   @Transactional

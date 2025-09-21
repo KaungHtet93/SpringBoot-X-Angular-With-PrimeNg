@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public record PurchaseResponse(
   Integer id,
-  SupplierResponse supplier,
   LocalDate purchaseDate,
+  SupplierNameResponse supplier,
   PurchaseDetailResponse purchaseDetail
 ) {
 }
